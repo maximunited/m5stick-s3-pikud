@@ -229,15 +229,19 @@ script:
       - lvgl.label.update:
           id: lbl_battery
           text: !lambda |-
-            if (id(external_power).state) {
-              return std::string("USB");
-            }
+            char buf[16];
             if (isnan(id(battery_level).state)) {
+              if (id(external_power).state) {
+                return std::string("USB");
+              }
               return std::string("--%");
             }
-            char buf[8];
             snprintf(buf, sizeof(buf), "%.0f%%", id(battery_level).state);
-            return std::string(buf);
+            std::string level(buf);
+            if (id(external_power).state) {
+              level += "+";
+            }
+            return level;
 
   - id: clock_time_text
     then:
@@ -495,6 +499,13 @@ time:
             text: !lambda 'return id(esptime).now().strftime("%d/%m/%y");'
 
 interval:
+  - interval: 10s
+    then:
+      - if:
+          condition:
+            lambda: 'return id(display_mode) == 0;'
+          then:
+            - script.execute: clock_status_text
   - interval: 30s
     then:
       - if:
@@ -542,11 +553,11 @@ lvgl:
             text_font: font_date
         - label:
             id: lbl_battery
-            x: -4
-            y: 4
-            align: TOP_RIGHT
+            x: -6
+            y: -6
+            align: BOTTOM_RIGHT
             text: "--%"
-            text_color: 0x8A8A8A
+            text_color: 0xB0B0B0
             text_font: font_battery
         - label:
             id: lbl_clock
