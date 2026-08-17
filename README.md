@@ -1,11 +1,23 @@
 # M5Stick S3 Pikud display (ESPHome + Home Assistant)
 
+[![ci](https://github.com/maximunited/m5stick-s3-pikud/actions/workflows/ci.yml/badge.svg)](https://github.com/maximunited/m5stick-s3-pikud/actions/workflows/ci.yml)
+
 Pikud HaOref civil-defense alerts on an **M5Stack Stick S3** display, driven by Home Assistant — without coupling to your Pikud lighting automations.
 
 - **Clock** at idle (12-hour + date)
 - **Pre-alert / alert / safe** animations synced from HA
 - **Test scripts** to exercise the display without firing scene automations
 - **USB flash** once, then **OTA** over Wi-Fi
+
+## Documentation
+
+| Guide | Description |
+| ----- | ----------- |
+| [Architecture](docs/ARCHITECTURE.md) | Components, data flow, safe-state logic |
+| [Troubleshooting](docs/TROUBLESHOOTING.md) | Flash, Wi-Fi, pairing, tests |
+| [Home Assistant merge](homeassistant/README.md) | Snippets to add to your HA config |
+
+Full index: [docs/README.md](docs/README.md)
 
 ## Hardware
 
@@ -197,6 +209,8 @@ homeassistant/
   scripts.yaml
   configuration.snippet.yaml
 docs/
+  README.md
+  ARCHITECTURE.md
   TROUBLESHOOTING.md
 ```
 

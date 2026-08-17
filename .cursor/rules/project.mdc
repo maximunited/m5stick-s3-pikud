@@ -1,0 +1,28 @@
+---
+description: M5Stick S3 Pikud project conventions
+alwaysApply: true
+---
+
+# m5stick-s3-pikud
+
+ESPHome firmware + Home Assistant snippets for Pikud display on M5Stack Stick S3.
+
+## Layout
+
+- `esphome/` — flashable firmware (`m5stick-s3.yaml`); secrets in gitignored `secrets.yaml`
+- `homeassistant/` — merge into HA config; see `homeassistant/README.md`
+- `docs/` — architecture and troubleshooting
+
+## Constraints
+
+- Stick needs **2.4 GHz** Wi-Fi; ESPHome secrets stay out of git.
+- Display driver state uses `sensor.m5stick_pikud_display_state`, not `sensor.oref_alert` directly.
+- Live `ok` is idle; green SAFE only on real all-clear or `test_ok`.
+- Test scripts bump `input_number.m5stick_pikud_sync` before changing mode.
+- No double-click handling yet — single short + A long only.
+
+## Changes
+
+- Firmware + HA template changes usually ship together.
+- Run `esphome config` / CI before pushing YAML edits.
+- OTA target: `m5stick-s3.local` after first USB flash.

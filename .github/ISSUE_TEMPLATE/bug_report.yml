@@ -1,0 +1,56 @@
+name: Bug report
+description: Display, flash, Wi-Fi, or Home Assistant integration problem
+title: "[bug] "
+labels:
+  - bug
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Redact Wi-Fi credentials, `secrets.yaml`, and API encryption keys.
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      options:
+        - ESPHome firmware / display
+        - USB flash / OTA
+        - Wi-Fi / pairing
+        - Home Assistant template / scripts
+        - Test framework
+        - Documentation
+    validations:
+      required: true
+  - type: input
+    id: firmware
+    attributes:
+      label: ESPHome version (if known)
+      placeholder: 2026.6.5
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behavior
+      description: Include logs, entity states, and what the screen showed.
+    validations:
+      required: true
+  - type: textarea
+    id: repro
+    attributes:
+      label: Steps to reproduce
+    validations:
+      required: true
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Checklist
+      options:
+        - label: I searched existing issues for duplicates
+          required: true
+        - label: I removed secrets from the report
+          required: true

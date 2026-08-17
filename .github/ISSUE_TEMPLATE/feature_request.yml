@@ -1,0 +1,29 @@
+name: Feature request
+description: Suggest a display, button, or integration improvement
+title: "[feature] "
+labels:
+  - enhancement
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem
+      description: What problem would this solve?
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed solution
+    validations:
+      required: true
+  - type: dropdown
+    id: scope
+    attributes:
+      label: Scope
+      options:
+        - ESPHome firmware
+        - Home Assistant integration
+        - Documentation
+        - CI / repo tooling
+        - Other

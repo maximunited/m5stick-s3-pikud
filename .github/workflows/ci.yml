@@ -1,0 +1,39 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Block committed secrets
+        run: |
+          test ! -f esphome/secrets.yaml
+          if grep -RInE '(wifi_password|api_encryption_key|ota_password):' esphome --include='*.yaml' | grep -v secrets.yaml.sample; then
+            echo "Possible secret committed under esphome/"
+            exit 1
+          fi
+
+      - name: YAML lint
+        run: |
+          pip install yamllint
+          yamllint -d relaxed esphome homeassistant .github
+
+      - name: ESPHome config validate
+        run: |
+          pip install 'esphome>=2024.12.0'
+          cp esphome/secrets.yaml.sample esphome/secrets.yaml
+          cd esphome
+          esphome config m5stick-s3.yaml
