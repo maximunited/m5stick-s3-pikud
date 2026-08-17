@@ -12,9 +12,9 @@ jobs:
   validate:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v7
         with:
           python-version: "3.12"
 
@@ -34,6 +34,12 @@ jobs:
       - name: ESPHome config validate
         run: |
           pip install 'esphome>=2024.12.0'
-          cp esphome/secrets.yaml.sample esphome/secrets.yaml
+          cat > esphome/secrets.yaml <<'EOF'
+          wifi_ssid: "ci-test"
+          wifi_password: "ci-test"
+          api_encryption_key: "YWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWE="
+          ota_password: "74834136cea7d5c5b6671194481f085f"
+          ap_password: "ci-fallback"
+          EOF
           cd esphome
           esphome config m5stick-s3.yaml
