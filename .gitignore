@@ -1,0 +1,6 @@
+esphome/secrets.yaml
+secrets.yaml
+.env
+.DS_Store
+.esphome/
+__pycache__/

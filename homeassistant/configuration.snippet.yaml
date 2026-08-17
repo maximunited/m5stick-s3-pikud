@@ -1,0 +1,13 @@
+# Add these lines to configuration.yaml if not already present.
+
+template: !include_dir_merge_list templates/
+# templates/m5stick_pikud.yaml is picked up automatically when copied there.
+
+input_select: !include input_select.yaml
+# Merge m5stick_pikud_test_mode from homeassistant/input_select.yaml into that file.
+
+input_number: !include input_number.yaml
+# Merge m5stick_pikud_sync from homeassistant/input_number.yaml.
+
+script: !include scripts.yaml
+# Merge m5stick_pikud_* scripts from homeassistant/scripts.yaml.

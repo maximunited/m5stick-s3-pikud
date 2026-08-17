@@ -1,0 +1,12 @@
+# Merge into your existing input_select.yaml (or include from configuration.yaml).
+
+m5stick_pikud_test_mode:
+  name: M5Stick Pikud test mode
+  options:
+    - live
+    - clock
+    - pre_alert
+    - alert
+    - ok
+  initial: live
+  icon: mdi:cellphone-dock
