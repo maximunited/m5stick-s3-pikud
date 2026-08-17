@@ -359,6 +359,10 @@ script:
             id(display_mode) = 0;
           }
           id(oref_prev_state) = s;
+      - script.stop: pikud_pre_alert_loop
+      - script.stop: pikud_alert_loop
+      - script.stop: pikud_safe_loop
+      - script.stop: pikud_show_clock
       - if:
           condition:
             lambda: 'return id(display_mode) == 1;'
