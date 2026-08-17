@@ -196,10 +196,6 @@ light:
 m5sticks3_power:
   id: stick_power
   update_interval: 10s
-  battery_level:
-    id: battery_level
-    name: "Battery level"
-    internal: true
   charging:
     id: external_power
     name: "External power"
@@ -229,19 +225,18 @@ script:
       - lvgl.label.update:
           id: lbl_battery
           text: !lambda |-
+            int level = M5.Power.getBatteryLevel();
+            bool charging = M5.Power.isCharging();
+            if (level < 0) {
+              return charging ? std::string("USB") : std::string("--%");
+            }
             char buf[16];
-            if (isnan(id(battery_level).state)) {
-              if (id(external_power).state) {
-                return std::string("USB");
-              }
-              return std::string("--%");
+            snprintf(buf, sizeof(buf), "%d%%", level);
+            std::string out(buf);
+            if (charging) {
+              out += "+";
             }
-            snprintf(buf, sizeof(buf), "%.0f%%", id(battery_level).state);
-            std::string level(buf);
-            if (id(external_power).state) {
-              level += "+";
-            }
-            return level;
+            return out;
 
   - id: clock_time_text
     then:
