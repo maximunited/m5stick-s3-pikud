@@ -36,11 +36,11 @@ jobs:
           pip install 'esphome>=2024.12.0'
           API_KEY="$(python3 -c 'import base64, os; print(base64.b64encode(os.urandom(32)).decode())')"
           cat > esphome/secrets.yaml <<EOF
-          wifi_ssid: "ci-test"
-          wifi_password: "ci-test"
+          wifi_ssid: "ci-test-network"
+          wifi_password: "ci-test-password"
           api_encryption_key: "${API_KEY}"
           ota_password: "74834136cea7d5c5b6671194481f085f"
-          ap_password: "ci-fallback"
+          ap_password: "ci-fallback-ap"
           EOF
           cd esphome
           esphome config m5stick-s3.yaml
