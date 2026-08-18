@@ -9,3 +9,13 @@ m5stick_pikud_sync:
   mode: box
   initial: 0
   icon: mdi:counter
+
+m5stick_pikud_safe_minutes:
+  name: M5Stick Pikud safe screen duration
+  min: 0.5
+  max: 60
+  step: 0.5
+  mode: box
+  initial: 5
+  unit_of_measurement: min
+  icon: mdi:timer-outline

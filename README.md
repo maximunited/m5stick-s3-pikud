@@ -163,23 +163,28 @@ Subscribes to **`sensor.m5stick_pikud_display_state`** (not `sensor.oref_alert` 
 
 | State | Display |
 | --- | --- |
-| Clock / idle | 12-hour clock + date |
-| `pre_alert` | Orange **Pre-Alert** 3s → full orange 3s → loop |
-| `alert` | Red **ALERT !** 3s → full red 3s → loop |
-| `ok` (live) | Green **SAFE** only after real `alert`/`pre_alert` → `ok` |
+| Clock / idle | 12-hour clock + date; **HA** (green) or **HA?** (orange) when API disconnected |
+| `pre_alert` | Orange **Pre-Alert** / **התרעה מוקדמת** 3s → full orange 3s → loop |
+| `alert` | Red **ALERT !** / **אזעקה!** + live shelter countdown → full red 3s → loop |
+| `ok` (live) | Green **SAFE** / **בטוח** only after real `alert`/`pre_alert` → `ok` |
 | `test_ok` | Green **SAFE** (test script) |
 
-**Power:** USB (≥ 4.5 V) keeps the clock on. On battery, display sleeps after 30 s idle; button A wakes.
+**Power:** Charging is detected via `M5.Power.isCharging()` (PMIC `readVin` is unreliable on this board). USB keeps the clock brighter; on battery, display sleeps after 30 s idle.
+
+**Safe screen duration:** `input_number.m5stick_pikud_safe_minutes` in HA (0.5–60 min, default 5).
+
+**Alert language:** `input_select.m5stick_pikud_alert_language` — `english` or `hebrew`.
+
+**Battery in HA:** `sensor.m5stick_s3_battery_level` (`device_class: battery`) is published for [Battery Notes](https://github.com/andrew-codechimp/Battery-Notes) and dashboards. The on-screen `%` readout was always local-only; there was no HA entity until now.
 
 ## Buttons
 
 | Control | Action |
 | --- | --- |
 | **A short** | Wake; on clock, toggle dim (40%) / bright (90%) |
+| **A double** | Force clock from any mode |
 | **A long** (~0.8 s) | Dismiss alert animation → clock |
-| **B short** (during alert) | Shelter countdown from `sensor.oref_alert_time_to_shelter` |
-
-Double-click is **not** implemented.
+| **B short** (during alert) | Re-show shelter countdown on red text screen |
 
 ## Test without Pikud scene automations
 
@@ -199,8 +204,14 @@ Pikud lighting automations react to `sensor.oref_alert`. Tests use a separate dr
 
 ```
 esphome/
-  m5stick-s3.yaml          # Main firmware
-  m5stick-s3-minimal.yaml  # Wi-Fi diagnostic build
+  m5stick-s3.yaml              # Entry point (substitutions + packages)
+  packages/
+    m5stick_hardware.yaml      # ESP32, Wi-Fi, API, intervals
+    m5stick_sensors.yaml       # HA subscriptions, battery/charging entities
+    m5stick_buttons.yaml       # GPIO buttons
+    m5stick_ui.yaml            # LVGL pages, fonts, backlight
+    m5stick_scripts.yaml       # Display logic
+  m5stick-s3-minimal.yaml      # Wi-Fi diagnostic build
   secrets.yaml.sample
 homeassistant/
   templates/m5stick_pikud.yaml
