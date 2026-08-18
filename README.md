@@ -169,23 +169,25 @@ Subscribes to **`sensor.m5stick_pikud_display_state`** (not `sensor.oref_alert` 
 | `ok` (live) | Green **SAFE** / **בטוח** only after real `alert`/`pre_alert` → `ok` |
 | `test_ok` | Green **SAFE** (test script) |
 
-**Power:** Charging is detected via `M5.Power.isCharging()` (PMIC `readVin` is unreliable on this board). USB keeps the clock brighter; on battery, display sleeps after 30 s idle.
+**Power:** Charging via `M5.Power.isCharging()` (PMIC `readVin` is unreliable). On USB the clock shows **PWR** (blue) instead of a stale charge percentage. On battery, the clock shows color-coded **%** (green ≥60, amber 30–59, red below 30). HA entity `sensor.m5stick_s3_battery_level` is unavailable while charging.
+
+**Screen sleep:** On battery, the display auto-sleeps after 30 s idle on the clock. On USB you turn the screen off manually with **A**. While asleep, alert loops keep running but do not turn the backlight back on until you wake or a **new** Oref state change arrives.
 
 **Safe screen duration:** `input_number.m5stick_pikud_safe_minutes` in HA (0.5–60 min, default 5).
 
 **Alert language:** `input_select.m5stick_pikud_alert_language` — `english` or `hebrew`.
 
-**Battery in HA:** `sensor.m5stick_s3_battery_level` (`device_class: battery`) is published for [Battery Notes](https://github.com/andrew-codechimp/Battery-Notes) and dashboards. The on-screen `%` readout was always local-only; there was no HA entity until now.
+**Rotation:** **B** on the clock cycles 0° → 90° → 180° → 270° (saved across reboots).
 
 ## Buttons
 
 | Control | Action |
 | --- | --- |
-| **A short** | Wake; on clock, toggle dim (40%) / bright (90%) |
-| **A double** | Force clock from any mode |
-| **A long** (~0.8 s) | Dismiss alert animation → clock |
-| **B short** (clock) | Rotate display 90° (0 → 90 → 180 → 270) |
-| **B short** (alert) | Re-show shelter countdown on red text screen |
+| **A short** | Toggle screen off/on; keeps current mode (clock, alert, safe, …) |
+| **A double** | Dismiss to clock — stops alert loops, screen on |
+| **B short** (clock) | Rotate 90° and wake screen if asleep |
+| **B short** (alert) | Wake screen and refresh shelter countdown |
+| **B short** (pre-alert / safe) | Wake screen |
 
 ## Test without Pikud scene automations
 

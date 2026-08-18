@@ -50,14 +50,6 @@ globals:
     type: uint32_t
     restore_value: no
     initial_value: "0"
-  - id: btn_a_long_fired
-    type: bool
-    restore_value: no
-    initial_value: "false"
-  - id: clock_brightness_high
-    type: bool
-    restore_value: no
-    initial_value: "false"
   - id: oref_prev_state
     type: std::string
     restore_value: no
@@ -86,6 +78,10 @@ globals:
     type: int
     restore_value: yes
     initial_value: "270"
+  - id: clock_screen_asleep
+    type: bool
+    restore_value: no
+    initial_value: "false"
 
 external_components:
   - source:
@@ -141,7 +137,9 @@ time:
         then:
           - if:
               condition:
-                lambda: 'return id(display_mode) == 0;'
+                and:
+                  - lambda: 'return id(display_mode) == 0;'
+                  - lambda: 'return !id(clock_screen_asleep);'
               then:
                 - script.execute: refresh_clock_labels
 
@@ -160,6 +158,8 @@ interval:
           id(api_connected_ha).publish_state(id(ha_connected));
       - if:
           condition:
-            lambda: 'return id(display_mode) == 0;'
+            and:
+              - lambda: 'return id(display_mode) == 0;'
+              - lambda: 'return !id(clock_screen_asleep);'
           then:
             - script.execute: clock_status_text

@@ -11,25 +11,9 @@ binary_sensor:
     filters:
       - delayed_on: 10ms
       - delayed_off: 10ms
-    on_press:
-      then:
-        - lambda: 'id(btn_a_long_fired) = false;'
-        - delay: 800ms
-        - if:
-            condition:
-              and:
-                - binary_sensor.is_on: key1
-                - lambda: 'return !id(btn_a_long_fired);'
-            then:
-              - lambda: 'id(btn_a_long_fired) = true;'
-              - script.execute: pikud_dismiss
     on_release:
       then:
-        - if:
-            condition:
-              lambda: 'return !id(btn_a_long_fired);'
-            then:
-              - script.execute: button_a_release
+        - script.execute: button_a_release
 
   - platform: gpio
     id: key2

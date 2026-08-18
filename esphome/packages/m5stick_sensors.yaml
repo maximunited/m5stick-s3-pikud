@@ -43,6 +43,9 @@ sensor:
     accuracy_decimals: 0
     update_interval: 60s
     lambda: |-
+      if (id(external_power).state) {
+        return NAN;
+      }
       int level = M5.Power.getBatteryLevel();
       if (level < 0) {
         return NAN;

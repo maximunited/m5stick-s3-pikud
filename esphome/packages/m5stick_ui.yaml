@@ -58,6 +58,7 @@ lvgl:
               - light.turn_off:
                   id: backlight
               - lvgl.pause:
+              - lambda: 'id(clock_screen_asleep) = true;'
   pages:
     - id: page_clock
       bg_color: 0x000000

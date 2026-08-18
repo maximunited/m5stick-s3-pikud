@@ -4,26 +4,23 @@ script:
       - lvgl.label.update:
           id: lbl_battery
           text: !lambda |-
+            if (id(external_power).state) {
+              return std::string("PWR");
+            }
             int level = M5.Power.getBatteryLevel();
-            bool charging = M5.Power.isCharging();
             if (level < 0) {
-              return charging ? std::string("USB") : std::string("--%");
+              return std::string("--%");
             }
             char buf[16];
             snprintf(buf, sizeof(buf), "%d%%", level);
-            std::string out(buf);
-            if (charging) {
-              out += "+";
-            }
-            return out;
+            return std::string(buf);
           text_color: !lambda |-
-            int level = M5.Power.getBatteryLevel();
-            bool charging = M5.Power.isCharging();
-            if (level < 0) {
-              return charging ? lv_color_hex(0x44AAFF) : lv_color_hex(0xB0B0B0);
-            }
-            if (charging) {
+            if (id(external_power).state) {
               return lv_color_hex(0x44AAFF);
+            }
+            int level = M5.Power.getBatteryLevel();
+            if (level < 0) {
+              return lv_color_hex(0xB0B0B0);
             }
             if (level >= 60) {
               return lv_color_hex(0x00CC00);
@@ -159,8 +156,53 @@ script:
       - script.execute: apply_clock_rotation
       - script.execute: render_clock_screen
 
+  - id: screen_sleep
+    then:
+      - lambda: 'id(clock_screen_asleep) = true;'
+      - light.turn_off:
+          id: backlight
+      - lvgl.pause:
+
+  - id: screen_wake
+    then:
+      - lambda: 'id(clock_screen_asleep) = false;'
+      - lvgl.resume:
+      - if:
+          condition:
+            lambda: 'return id(display_mode) == 0;'
+          then:
+            - script.execute: apply_clock_rotation
+            - script.execute: render_clock_screen
+      - if:
+          condition:
+            lambda: 'return id(display_mode) == 1;'
+          then:
+            - script.execute: pikud_pre_alert_loop
+      - if:
+          condition:
+            lambda: 'return id(display_mode) == 2;'
+          then:
+            - script.execute: pikud_alert_loop
+      - if:
+          condition:
+            lambda: 'return id(display_mode) == 3;'
+          then:
+            - script.execute: pikud_safe_loop
+
   - id: pikud_wake_display
     then:
+      - if:
+          condition:
+            lambda: 'return !id(clock_screen_asleep);'
+          then:
+            - lvgl.resume:
+            - light.turn_on:
+                id: backlight
+                brightness: 90%
+
+  - id: pikud_force_wake_display
+    then:
+      - lambda: 'id(clock_screen_asleep) = false;'
       - lvgl.resume:
       - light.turn_on:
           id: backlight
@@ -168,6 +210,7 @@ script:
 
   - id: render_clock_screen
     then:
+      - lambda: 'id(clock_screen_asleep) = false;'
       - lvgl.resume:
       - script.execute: refresh_clock_labels
       - lvgl.widget.hide: lbl_alert_shelter
@@ -180,17 +223,9 @@ script:
                 id: backlight
                 brightness: 70%
           else:
-            - if:
-                condition:
-                  lambda: 'return id(clock_brightness_high);'
-                then:
-                  - light.turn_on:
-                      id: backlight
-                      brightness: 90%
-                else:
-                  - light.turn_on:
-                      id: backlight
-                      brightness: 40%
+            - light.turn_on:
+                id: backlight
+                brightness: 40%
 
   - id: pikud_show_clock
     mode: restart
@@ -239,24 +274,11 @@ script:
     then:
       - if:
           condition:
-            lambda: 'return id(display_mode) == 0;'
+            lambda: 'return id(clock_screen_asleep);'
           then:
-            - script.execute: render_clock_screen
-            - if:
-                condition:
-                  lambda: 'return id(clock_brightness_high);'
-                then:
-                  - lambda: 'id(clock_brightness_high) = false;'
-                  - light.turn_on:
-                      id: backlight
-                      brightness: 40%
-                else:
-                  - lambda: 'id(clock_brightness_high) = true;'
-                  - light.turn_on:
-                      id: backlight
-                      brightness: 90%
+            - script.execute: screen_wake
           else:
-            - script.execute: pikud_wake_display
+            - script.execute: screen_sleep
 
   - id: button_b_short
     then:
@@ -269,14 +291,14 @@ script:
           condition:
             lambda: 'return id(display_mode) == 2;'
           then:
-            - script.execute: pikud_wake_display
+            - script.execute: pikud_force_wake_display
             - script.execute: update_shelter_label
             - lvgl.widget.show: lbl_alert_shelter
       - if:
           condition:
             lambda: 'return id(display_mode) == 1 || id(display_mode) == 3;'
           then:
-            - script.execute: pikud_wake_display
+            - script.execute: pikud_force_wake_display
 
   - id: handle_oref_state
     mode: restart
@@ -322,6 +344,11 @@ script:
             - script.stop: pikud_safe_loop
             - script.stop: pikud_show_clock
             - script.execute: update_alert_labels
+            - if:
+                condition:
+                  lambda: 'return id(display_mode) == 1 || id(display_mode) == 2 || id(display_mode) == 3;'
+                then:
+                  - script.execute: pikud_force_wake_display
             - if:
                 condition:
                   lambda: 'return id(display_mode) == 1;'
