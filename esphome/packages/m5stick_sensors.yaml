@@ -55,17 +55,10 @@ binary_sensor:
     name: "Charging"
     device_class: battery_charging
     entity_category: diagnostic
+    filters:
+      - delayed_off: 45s
     lambda: |-
       return M5.Power.isCharging();
-    on_state:
-      then:
-        - if:
-            condition:
-              and:
-                - binary_sensor.is_on: external_power
-                - lambda: 'return id(display_mode) == 0;'
-            then:
-              - script.execute: render_clock_screen
 
   - platform: template
     name: "API connected"

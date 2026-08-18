@@ -184,7 +184,8 @@ Subscribes to **`sensor.m5stick_pikud_display_state`** (not `sensor.oref_alert` 
 | **A short** | Wake; on clock, toggle dim (40%) / bright (90%) |
 | **A double** | Force clock from any mode |
 | **A long** (~0.8 s) | Dismiss alert animation → clock |
-| **B short** (during alert) | Re-show shelter countdown on red text screen |
+| **B short** (clock) | Rotate display 90° (0 → 90 → 180 → 270) |
+| **B short** (alert) | Re-show shelter countdown on red text screen |
 
 ## Test without Pikud scene automations
 

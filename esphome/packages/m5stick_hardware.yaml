@@ -11,6 +11,9 @@ esphome:
             brightness: 40%
         - lambda: |-
             M5.Speaker.end();
+    - priority: 600
+      then:
+        - script.execute: apply_clock_rotation
   libraries:
     - Wire
     - SPI
@@ -59,6 +62,14 @@ globals:
     type: std::string
     restore_value: no
     initial_value: '""'
+  - id: oref_prev_raw
+    type: std::string
+    restore_value: no
+    initial_value: '""'
+  - id: oref_state_changed
+    type: bool
+    restore_value: no
+    initial_value: "false"
   - id: ha_connected
     type: bool
     restore_value: no
@@ -71,6 +82,10 @@ globals:
     type: bool
     restore_value: no
     initial_value: "false"
+  - id: clock_rotation_deg
+    type: int
+    restore_value: yes
+    initial_value: "270"
 
 external_components:
   - source:
@@ -120,10 +135,15 @@ time:
     id: esptime
     on_time_sync:
       then:
-        - script.execute: clock_time_text
-        - lvgl.label.update:
-            id: lbl_date
-            text: !lambda 'return id(esptime).now().strftime("%d/%m/%y");'
+        - script.execute: refresh_clock_labels
+    on_time:
+      - seconds: 0
+        then:
+          - if:
+              condition:
+                lambda: 'return id(display_mode) == 0;'
+              then:
+                - script.execute: refresh_clock_labels
 
 interval:
   - interval: 1s
@@ -143,13 +163,3 @@ interval:
             lambda: 'return id(display_mode) == 0;'
           then:
             - script.execute: clock_status_text
-  - interval: 30s
-    then:
-      - if:
-          condition:
-            lambda: 'return id(display_mode) == 0;'
-          then:
-            - script.execute: clock_time_text
-            - lvgl.label.update:
-                id: lbl_date
-                text: !lambda 'return id(esptime).now().strftime("%d/%m/%y");'
